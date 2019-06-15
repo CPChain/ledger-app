@@ -20,10 +20,10 @@ $(error Environment variable BOLOS_SDK is not set)
 endif
 include $(BOLOS_SDK)/Makefile.defines
 
-DEFINES_LIB = USE_LIB_ETHEREUM
+# DEFINES_LIB = USE_LIB_ETHEREUM
 APP_LOAD_PARAMS= --curve secp256k1 $(COMMON_LOAD_PARAMS)
 # Allow the app to use path 45 for multi-sig (see BIP45).
-APP_LOAD_PARAMS += --path "45'"
+# APP_LOAD_PARAMS += --path "45'"
 
 APPVERSION_M=1
 APPVERSION_N=2
@@ -37,9 +37,9 @@ endif
 
 ifeq ($(CHAIN),ethereum)
 # Lock the application on its standard path for 1.5. Please complain if non compliant
-APP_LOAD_PARAMS += --path "44'/60'"
+APP_LOAD_PARAMS += --path "44'/373'"
 DEFINES += CHAINID_UPCASE=\"ETHEREUM\" CHAINID_COINNAME=\"ETH\" CHAIN_KIND=CHAIN_KIND_ETHEREUM CHAIN_ID=0
-APPNAME = "Ethereum"
+APPNAME = "CPChain"
 DEFINES_LIB=
 APP_LOAD_FLAGS=--appFlags 0xa40
 else ifeq ($(CHAIN),ellaism)
@@ -141,7 +141,7 @@ $(error Unsupported CHAIN - use ethereum, ethereum_classic, expanse, poa, rsk, r
 endif
 endif
 
-APP_LOAD_PARAMS += $(APP_LOAD_FLAGS) --path "44'/1'"
+# APP_LOAD_PARAMS += $(APP_LOAD_FLAGS) --path "44'/1'"
 DEFINES += $(DEFINES_LIB)
 
 #prepare hsm generation
