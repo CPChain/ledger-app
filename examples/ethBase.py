@@ -23,12 +23,14 @@ from rlp import Serializable
 
 try:
     from Crypto.Hash import keccak
-    def sha3_256(x): return keccak.new(digest_bits=256, data=x.encode()).digest()
+    def sha3_256(x): return keccak.new(
+        digest_bits=256, data=x.encode()).digest()
 except:
     import sha3 as _sha3
     def sha3_256(x): return _sha3.sha3_256(x).digest()
 
 address = Binary.fixed_length(20, allow_empty=True)
+
 
 def sha3(seed):
     return sha3_256(str(seed))
@@ -37,6 +39,7 @@ def sha3(seed):
 class Transaction(Serializable):
     fields = [
         ('nonce', big_endian_int),
+        ('txtype', big_endian_int),
         ('gasprice', big_endian_int),
         ('startgas', big_endian_int),
         ('to', address),
@@ -47,13 +50,15 @@ class Transaction(Serializable):
         ('s', big_endian_int),
     ]
 
-    def __init__(self, nonce, gasprice, startgas, to, value, data, v=0, r=0, s=0):
+    def __init__(self, nonce, txtype, gasprice, startgas, to, value, data, v=0, r=0, s=0):
         super(Transaction, self).__init__(
-            nonce, gasprice, startgas, to, value, data, v, r, s)
+            nonce, txtype, gasprice, startgas, to, value, data, v, r, s)
+
 
 class UnsignedTransaction(Serializable):
     fields = [
         ('nonce', big_endian_int),
+        ('txtype', big_endian_int),
         ('gasprice', big_endian_int),
         ('startgas', big_endian_int),
         ('to', address),
@@ -61,9 +66,11 @@ class UnsignedTransaction(Serializable):
         ('data', binary),
     ]
 
+
 def unsigned_tx_from_tx(tx):
     return UnsignedTransaction(
         nonce=tx.nonce,
+        txtype=tx.txtype,
         gasprice=tx.gasprice,
         startgas=tx.startgas,
         to=tx.to,

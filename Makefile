@@ -37,7 +37,7 @@ endif
 
 ifeq ($(CHAIN),ethereum)
 # Lock the application on its standard path for 1.5. Please complain if non compliant
-APP_LOAD_PARAMS += --path "44'/373'"
+APP_LOAD_PARAMS += --path "44'/337'"
 DEFINES += CHAINID_UPCASE=\"ETHEREUM\" CHAINID_COINNAME=\"ETH\" CHAIN_KIND=CHAIN_KIND_ETHEREUM CHAIN_ID=0
 APPNAME = "CPChain"
 DEFINES_LIB=

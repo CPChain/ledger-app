@@ -34,8 +34,9 @@ CHAIN_ID = 0
 try:
     from rlp.utils import decode_hex, encode_hex, str_to_bytes
 except:
-    #Python3 hack import for pyethereum
+    # Python3 hack import for pyethereum
     from ethereum.utils import decode_hex, encode_hex, str_to_bytes
+
 
 def parse_bip32_path(path):
     if len(path) == 0:
@@ -52,17 +53,22 @@ def parse_bip32_path(path):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--nonce', help="Nonce associated to the account", type=int, required=True)
-parser.add_argument('--gasprice', help="Network gas price", type=int, required=True)
+parser.add_argument(
+    '--nonce', help="Nonce associated to the account", type=int, required=True)
+parser.add_argument('--txtype', help="Transaction type",
+                    type=int, required=True)
+parser.add_argument('--gasprice', help="Network gas price",
+                    type=int, required=True)
 parser.add_argument('--startgas', help="startgas", default='21000', type=int)
 parser.add_argument('--amount', help="Amount to send in ether", required=True)
-parser.add_argument('--to', help="Destination address", type=str, required=True)
+parser.add_argument('--to', help="Destination address",
+                    type=str, required=True)
 parser.add_argument('--path', help="BIP 32 path to sign with")
 parser.add_argument('--data', help="Data to add, hex encoded")
 args = parser.parse_args()
 
 if args.path == None:
-    args.path = "44'/60'/0'/0/0"
+    args.path = "44'/337'/0'/0/0"
 
 if args.data == None:
     args.data = b""
@@ -73,6 +79,7 @@ amount = Decimal(args.amount) * 10**18
 
 tx = Transaction(
     nonce=int(args.nonce),
+    txtype=int(args.txtype),
     gasprice=int(args.gasprice),
     startgas=int(args.startgas),
     to=decode_hex(args.to[2:]),
@@ -96,15 +103,15 @@ result = dongle.exchange(bytes(apdu))
 
 # Needs to recover (main.c:1121)
 if (CHAIN_ID*2 + 35) + 1 > 255:
-	ecc_parity = result[0] - ((CHAIN_ID*2 + 35) % 256)
-	v = (CHAIN_ID*2 + 35) + ecc_parity
+    ecc_parity = result[0] - ((CHAIN_ID*2 + 35) % 256)
+    v = (CHAIN_ID*2 + 35) + ecc_parity
 else:
-	v = result[0]
+    v = result[0]
 
 r = int(binascii.hexlify(result[1:1 + 32]), 16)
 s = int(binascii.hexlify(result[1 + 32: 1 + 32 + 32]), 16)
 
-tx = Transaction(tx.nonce, tx.gasprice, tx.startgas,
+tx = Transaction(tx.nonce, tx.txtype, tx.gasprice, tx.startgas,
                  tx.to, tx.value, tx.data, v, r, s)
 
 print("Signed transaction", encode_hex(encode(tx)))
