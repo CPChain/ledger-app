@@ -38,8 +38,8 @@ def sha3(seed):
 
 class Transaction(Serializable):
     fields = [
-        ('nonce', big_endian_int),
         ('txtype', big_endian_int),
+        ('nonce', big_endian_int),
         ('gasprice', big_endian_int),
         ('startgas', big_endian_int),
         ('to', address),
@@ -57,8 +57,8 @@ class Transaction(Serializable):
 
 class UnsignedTransaction(Serializable):
     fields = [
-        ('nonce', big_endian_int),
         ('txtype', big_endian_int),
+        ('nonce', big_endian_int),
         ('gasprice', big_endian_int),
         ('startgas', big_endian_int),
         ('to', address),
@@ -69,8 +69,8 @@ class UnsignedTransaction(Serializable):
 
 def unsigned_tx_from_tx(tx):
     return UnsignedTransaction(
-        nonce=tx.nonce,
         txtype=tx.txtype,
+        nonce=tx.nonce,
         gasprice=tx.gasprice,
         startgas=tx.startgas,
         to=tx.to,
