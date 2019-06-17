@@ -42,6 +42,7 @@ typedef enum rlpTxField_e {
     TX_RLP_CONTENT,
     TX_RLP_TYPE,
     TX_RLP_NONCE,
+    TX_RLP_TXTYPE,
     TX_RLP_GASPRICE,
     TX_RLP_STARTGAS,
     TX_RLP_TO,
@@ -66,6 +67,7 @@ typedef struct txInt256_t {
 } txInt256_t;
 
 typedef struct txContent_t {
+    txInt256_t txtype;
     txInt256_t gasprice;
     txInt256_t startgas;
     txInt256_t value;

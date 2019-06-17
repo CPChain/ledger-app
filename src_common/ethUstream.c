@@ -106,6 +106,34 @@ static void processType(txContext_t *context) {
     }
 }
 
+
+static void processTxtype(txContext_t *context) {
+    if (context->currentFieldIsList) {
+        PRINTF("Invalid type for RLP_TXTYPE\n");
+        THROW(EXCEPTION);
+    }
+    if (context->currentFieldLength > MAX_INT256) {
+        PRINTF("Invalid length for RLP_TXTYPE\n");
+        THROW(EXCEPTION);
+    }
+    if (context->currentFieldPos < context->currentFieldLength) {
+        uint32_t copySize =
+            (context->commandLength <
+                     ((context->currentFieldLength - context->currentFieldPos))
+                 ? context->commandLength
+                 : context->currentFieldLength - context->currentFieldPos);
+        copyTxData(context,
+                   context->content->txtype.value + context->currentFieldPos,
+                   copySize);
+    }
+    if (context->currentFieldPos == context->currentFieldLength) {
+        context->content->txtype.length = context->currentFieldLength;
+        context->currentField++;
+        context->processingField = false;
+    }
+}
+
+
 static void processNonce(txContext_t *context) {
     if (context->currentFieldIsList) {
         PRINTF("Invalid type for RLP_NONCE\n");
@@ -371,6 +399,9 @@ static parserStatus_e processTxInternal(txContext_t *context) {
                 break;
             case TX_RLP_NONCE:
                 processNonce(context);
+                break;
+			case TX_RLP_TXTYPE:
+                processTxtype(context);
                 break;
             case TX_RLP_GASPRICE:
                 processGasprice(context);
