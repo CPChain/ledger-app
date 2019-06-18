@@ -29,7 +29,7 @@ from ethBase import Transaction, UnsignedTransaction, unsigned_tx_from_tx
 from rlp import encode
 
 # Define here Chain_ID for EIP-155
-CHAIN_ID = 0
+CHAIN_ID = 337
 
 try:
     from rlp.utils import decode_hex, encode_hex, str_to_bytes
@@ -78,8 +78,8 @@ else:
 amount = Decimal(args.amount) * 10**18
 
 tx = Transaction(
-    nonce=int(args.nonce),
     txtype=int(args.txtype),
+    nonce=int(args.nonce),
     gasprice=int(args.gasprice),
     startgas=int(args.startgas),
     to=decode_hex(args.to[2:]),
@@ -111,7 +111,20 @@ else:
 r = int(binascii.hexlify(result[1:1 + 32]), 16)
 s = int(binascii.hexlify(result[1 + 32: 1 + 32 + 32]), 16)
 
-tx = Transaction(tx.nonce, tx.txtype, tx.gasprice, tx.startgas,
+tx = Transaction(tx.txtype, tx.nonce, tx.gasprice, tx.startgas,
                  tx.to, tx.value, tx.data, v, r, s)
-
+print(
+"##########################" ,
+"\nsigned tx" ,
+"\ntype", tx.txtype,
+"\nnonce", tx.nonce, 
+"\ngasprice ",tx.gasprice,
+"\nstartgas", tx.startgas,
+"\nto ",tx.to.hex(),
+"\nvalue", tx.value, 
+"\ndata",tx.data, 
+"\nv",v, 
+"\nr",r,
+"\ns", s,
+"\n##########################")
 print("Signed transaction", encode_hex(encode(tx)))

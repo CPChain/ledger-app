@@ -397,11 +397,11 @@ static parserStatus_e processTxInternal(txContext_t *context) {
             case TX_RLP_TYPE:
                 processType(context);
                 break;
+            case TX_RLP_TXTYPE:
+                processTxtype(context);
+                break;
             case TX_RLP_NONCE:
                 processNonce(context);
-                break;
-			case TX_RLP_TXTYPE:
-                processTxtype(context);
                 break;
             case TX_RLP_GASPRICE:
                 processGasprice(context);

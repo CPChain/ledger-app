@@ -50,9 +50,9 @@ class Transaction(Serializable):
         ('s', big_endian_int),
     ]
 
-    def __init__(self, nonce, txtype, gasprice, startgas, to, value, data, v=0, r=0, s=0):
+    def __init__(self, txtype, nonce, gasprice, startgas, to, value, data, v=0, r=0, s=0):
         super(Transaction, self).__init__(
-            nonce, txtype, gasprice, startgas, to, value, data, v, r, s)
+            txtype, nonce, gasprice, startgas, to, value, data, v, r, s)
 
 
 class UnsignedTransaction(Serializable):
