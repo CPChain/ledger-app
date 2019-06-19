@@ -29,19 +29,23 @@ APPVERSION_M=1
 APPVERSION_N=2
 APPVERSION_P=3
 APPVERSION=$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)
-APP_LOAD_FLAGS= --appFlags 0x240 --dep Ethereum:$(APPVERSION)
+APP_LOAD_FLAGS= --appFlags 0x240 #--dep Ethereum:$(APPVERSION)
 
 ifeq ($(CHAIN),)
-CHAIN=ethereum
+CHAIN=cpchain
 endif
 
 ifeq ($(CHAIN),ethereum)
 # Lock the application on its standard path for 1.5. Please complain if non compliant
-APP_LOAD_PARAMS += --path "44'/337'"
+APP_LOAD_PARAMS += --path "44'/60'"
 DEFINES += CHAINID_UPCASE=\"ETHEREUM\" CHAINID_COINNAME=\"ETH\" CHAIN_KIND=CHAIN_KIND_ETHEREUM CHAIN_ID=0
-APPNAME = "CPChain"
+APPNAME = "Ethereum"
 DEFINES_LIB=
 APP_LOAD_FLAGS=--appFlags 0xa40
+else ifeq ($(CHAIN),cpchain)
+APP_LOAD_PARAMS += --path "44'/337'"
+DEFINES += CHAINID_UPCASE=\"CPCHAIN\" CHAINID_COINNAME=\"CPC\" CHAIN_KIND=CHAIN_KIND_CPCHAIN CHAIN_ID=337
+APPNAME = "CPChain"
 else ifeq ($(CHAIN),ellaism)
 APP_LOAD_PARAMS += --path "44'/163'"
 DEFINES += CHAINID_UPCASE=\"ELLA\" CHAINID_COINNAME=\"ELLA\" CHAIN_KIND=CHAIN_KIND_ELLAISM CHAIN_ID=64
@@ -201,7 +205,7 @@ ifneq ($(NOCONSENT),)
 DEFINES   += NO_CONSENT
 endif
 
-DEFINES   += HAVE_TOKENS_LIST # Do not activate external ERC-20 support yet
+#DEFINES   += HAVE_TOKENS_LIST # Do not activate external ERC-20 support yet
 
 ##############
 #  Compiler  #
