@@ -68,7 +68,7 @@ parser.add_argument('--data', help="Data to add, hex encoded")
 args = parser.parse_args()
 
 if args.path == None:
-    args.path = "44'/337'/0'/0/0"
+    args.path = "44'/337'/0'/0"
 
 if args.data == None:
     args.data = b""
@@ -91,7 +91,7 @@ tx = Transaction(
 )
 
 encodedTx = encode(tx, Transaction)
-
+print("encodedTx", encodedTx.hex())
 donglePath = parse_bip32_path(args.path)
 apdu = bytearray.fromhex("e0040000")
 apdu.append(len(donglePath) + 1 + len(encodedTx))
