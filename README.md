@@ -1,15 +1,33 @@
-# ledger-app-eth
-Ethereum wallet application framework for Ledger Blue, Nano S and Nano X
+# CPChain ledger app
 
-This follows the specification available in the doc/ folder
+## Overview
 
-To use the generic wallet (which disables all data transaction) refer to signTx.py (requires rlp package) or Ledger Ethereum Wallet Chrome application available on Github at https://github.com/LedgerHQ/ledger-wallet-ethereum-chrome or the Chrome Web store at https://chrome.google.com/webstore/detail/ledger-wallet-ethereum/hmlhkialjkaldndjnlcdfdphcgeadkkm 
+CPChain wallet application framework for Ledger Nano S.
 
-Other examples are provided reusing the Ethereum parsing framework to implement some advanced use cases : 
+## Building and installing
 
-  * An ETH/ETC splitting contract - see src_chainsplit, splitEther.py and our Medium post at https://blog.ledger.co/splitting-your-ethers-securely-on-your-nano-s-147f20e9e341
-  * An unsupported use case (transferring The DAO (RIP) tokens), using deprecated code - see src_daosend 
+To build and install the app on your Ledger Nano S you must set up the Ledger Nano S build environments. Please follow the `Getting Started` instructions at [ledger official document](https://ledger.readthedocs.io/en/latest/userspace/getting_started.html).
 
+- Compile and load the app onto the device:
 
-For more information about the parsing framework you can refer to https://medium.com/@Ledger/dynamic-secure-applications-with-bolos-and-ledger-blue-a-use-case-with-ethereum-and-the-dao-6be91260e89f#.204qgmogo 
+```bash
+make load
+```
 
+- Remove the app from the device:
+
+```bash
+make delete
+```
+
+## Examples of Ledger wallet functionality
+
+Test functionality:
+
+```bash
+# sign transaxtions
+./examples/signTx.py --nonce 2  --gasprice 18000000000 --amount 1 --to 0x4d90553e566b67e593059f9aba02941f025578cd --txtype 0
+
+# sign message
+./examples/signMessage.py --message "testtest"
+```
