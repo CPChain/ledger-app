@@ -17,9 +17,9 @@ Install the CPChain app on your Ledger device to manage CPC token with the CPCha
 3. If asked, allow the manager on your device by pressing the right button.
 4. Find `CPChain` in the app catalog.
 5. Press the `Install` button of the app.
-   - An installation window appears.
-   - Your device will display `Processing…`
-   - The app installation is confirmed.
+    - An installation window appears.
+    - Your device will display `Processing…`
+    - The app installation is confirmed.
 
 ![app_logo](./res/app_logo.png)
 
@@ -38,15 +38,16 @@ Install the CPChain app on your Ledger device to manage CPC token with the CPCha
 
 - Your address is displayed on the Web CPChain wallet. You can use it to send CPC.
 - To send tokens, enter the amount and receiving address,  then click  `Send`.
+- Wait while the Ledger display the transaction details.
 - Verify and confirm all transaction details on your Ledger device display.
+
+![details_addr](./res/details_addr.png)
+![details_value](./res/details_value.png)
+
 - Press the right button to sign the transaction.
 
 ![sign_tx](./res/sign_tx.png)
 
-- Wait and the Ledger display the transaction details.
-
-![details_addr](./res/details_addr.png)
-![details_value](./res/details_value.png)
 - Press left button to deny the transaction.
 
 ## 5. Contact info
