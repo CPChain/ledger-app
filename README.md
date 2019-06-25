@@ -22,7 +22,14 @@ make delete
 
 ## Examples of Ledger wallet functionality
 
-Test functionality:
+Following packages maybe needed
+```sh
+sudo apt install python3-pip -y
+sudo apt install libudev-dev libusb-1.0-0-dev -y
+pip3 install ledgerblue cpc_fusion
+pip install Pillow
+```
+- Test functionality:
 
 ```bash
 # sign transaxtions
@@ -31,3 +38,7 @@ Test functionality:
 # sign message
 ./examples/signMessage.py --message "testtest"
 ```
+
+## Documentation
+
+This follows the specification available in the [`api.asc`](./api.asc).
