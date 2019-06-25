@@ -24,9 +24,9 @@ make delete
 
 Following packages maybe needed
 ```sh
-sudo apt install python3-pip -y
+sudo apt install python3-pip libssl-dev -y
 sudo apt install libudev-dev libusb-1.0-0-dev -y
-pip3 install ledgerblue cpc_fusion
+pip3 install ledgerblue cpc_fusion rlp ethereum
 pip install Pillow
 ```
 - Test functionality:
