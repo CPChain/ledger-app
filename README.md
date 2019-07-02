@@ -32,11 +32,11 @@ pip install Pillow
 - Test functionality:
 
 ```bash
-# sign transaxtions
+# sign transactions
 ./examples/signTx.py --nonce 2  --gasprice 18000000000 --amount 1 --to 0x4d90553e566b67e593059f9aba02941f025578cd --txtype 0
 
 # sign message
-./examples/signMessage.py --message "testtest"
+./examples/signMessage.py --message "Test message"
 ```
 
 ## Documentation

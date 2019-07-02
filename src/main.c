@@ -24,7 +24,6 @@
 #include "ethUstream.h"
 #include "ethUtils.h"
 #include "uint256.h"
-#include "tokens.h"
 #include "chainConfig.h"
 
 #include "os_io_seproxyhal.h"
@@ -76,27 +75,6 @@ void finalizeParsing(bool);
 
 #define WEI_TO_ETHER 18
 
-static const uint8_t const TOKEN_TRANSFER_ID[] = { 0xa9, 0x05, 0x9c, 0xbb };
-
-static const uint8_t const TOKEN_SIGNATURE_PUBLIC_KEY[] = {
-// production key 2019-01-11 03:07PM (erc20signer)
-  0x04,
-
-  0x5e,0x6c,0x10,0x20,0xc1,0x4d,0xc4,0x64,
-  0x42,0xfe,0x89,0xf9,0x7c,0x0b,0x68,0xcd,
-  0xb1,0x59,0x76,0xdc,0x24,0xf2,0x4c,0x31,
-  0x6e,0x7b,0x30,0xfe,0x4e,0x8c,0xc7,0x6b,
-
-  0x14,0x89,0x15,0x0c,0x21,0x51,0x4e,0xbf,
-  0x44,0x0f,0xf5,0xde,0xa5,0x39,0x3d,0x83,
-  0xde,0x53,0x58,0xcd,0x09,0x8f,0xce,0x8f,
-  0xd0,0xf8,0x1d,0xaa,0x94,0x97,0x91,0x83
-};
-
-typedef struct tokenContext_t {
-    uint8_t data[4 + 32 + 32];
-    uint32_t dataFieldPos;
-} tokenContext_t;
 
 typedef struct rawDataContext_t {
     uint8_t data[32];
@@ -115,7 +93,6 @@ typedef struct transactionContext_t {
     uint8_t pathLength;
     uint32_t bip32Path[MAX_BIP32_PATH];
     uint8_t hash[32];
-    tokenDefinition_t currentToken;
 } transactionContext_t;
 
 typedef struct messageSigningContext_t {
@@ -140,7 +117,6 @@ union {
 cx_sha3_t sha3;
 
 union {
-    tokenContext_t tokenContext;
     rawDataContext_t rawDataContext;
 } dataContext;
 
@@ -148,9 +124,6 @@ volatile uint8_t dataAllowed;
 volatile uint8_t contractDetails;
 volatile char addressSummary[32];
 volatile bool dataPresent;
-volatile bool tokenProvisioned;
-volatile bool currentTokenSet;
-
 bagl_element_t tmp_element;
 
 #ifdef TARGET_NANOX
@@ -1777,167 +1750,6 @@ uint32_t splitBinaryParameterPart(char *result, uint8_t *parameter) {
     }
 }
 
-tokenDefinition_t* getKnownToken() {
-    tokenDefinition_t *currentToken = NULL;
-#ifdef HAVE_TOKENS_LIST
-    uint32_t numTokens = 0;
-    uint32_t i;
-    switch(chainConfig->kind) {
-        case CHAIN_KIND_AKROMA:
-            numTokens = NUM_TOKENS_AKROMA;
-            break;
-        case CHAIN_KIND_ETHEREUM:
-            numTokens = NUM_TOKENS_ETHEREUM;
-            break;
-        case CHAIN_KIND_ETHEREUM_CLASSIC:
-            numTokens = NUM_TOKENS_ETHEREUM_CLASSIC;
-            break;
-        case CHAIN_KIND_PIRL:
-            numTokens = NUM_TOKENS_PIRL;
-            break;
-        case CHAIN_KIND_POA:
-            numTokens = NUM_TOKENS_POA;
-            break;
-        case CHAIN_KIND_RSK:
-            numTokens = NUM_TOKENS_RSK;
-            break;
-        case CHAIN_KIND_EXPANSE:
-            numTokens = NUM_TOKENS_EXPANSE;
-            break;
-        case CHAIN_KIND_UBIQ:
-            numTokens = NUM_TOKENS_UBIQ;
-            break;
-        case CHAIN_KIND_WANCHAIN:
-            numTokens = NUM_TOKENS_WANCHAIN;
-            break;
-        case CHAIN_KIND_KUSD:
-            numTokens = NUM_TOKENS_KUSD;
-            break;
-        case CHAIN_KIND_MUSICOIN:
-            numTokens = NUM_TOKENS_MUSICOIN;
-            break;
-        case CHAIN_KIND_CALLISTO:
-            numTokens = NUM_TOKENS_CALLISTO;
-            break;
-        case CHAIN_KIND_ETHERSOCIAL:
-            numTokens = NUM_TOKENS_ETHERSOCIAL;
-            break;
-        case CHAIN_KIND_ELLAISM:
-            numTokens = NUM_TOKENS_ELLAISM;
-            break;
-        case CHAIN_KIND_ETHER1:
-            numTokens = NUM_TOKENS_ETHER1;
-            break;
-        case CHAIN_KIND_ETHERGEM:
-            numTokens = NUM_TOKENS_ETHERGEM;
-            break;
-        case CHAIN_KIND_ATHEIOS:
-            numTokens = NUM_TOKENS_ATHEIOS;
-            break;
-        case CHAIN_KIND_GOCHAIN:
-            numTokens = NUM_TOKENS_GOCHAIN;
-            break;
-        case CHAIN_KIND_MIX:
-            numTokens = NUM_TOKENS_MIX;
-            break;
-        case CHAIN_KIND_REOSC:
-            numTokens = NUM_TOKENS_REOSC;
-            break;
-        case CHAIN_KIND_HPB:
-            numTokens = NUM_TOKENS_HPB;
-            break;
-        case CHAIN_KIND_TOMOCHAIN:
-            numTokens = NUM_TOKENS_TOMOCHAIN;
-            break;
-        case CHAIN_KIND_TOBALABA:
-            numTokens = NUM_TOKENS_TOBALABA;
-            break;
-    }
-    for (i=0; i<numTokens; i++) {
-        switch(chainConfig->kind) {
-            case CHAIN_KIND_AKROMA:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_AKROMA[i]);
-                break;
-            case CHAIN_KIND_ETHEREUM:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_ETHEREUM[i]);
-                break;
-            case CHAIN_KIND_ETHEREUM_CLASSIC:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_ETHEREUM_CLASSIC[i]);
-                break;
-            case CHAIN_KIND_PIRL:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_PIRL[i]);
-                break;
-            case CHAIN_KIND_POA:
-                    currentToken = (tokenDefinition_t *)PIC(&TOKENS_POA[i]);
-                    break;
-            case CHAIN_KIND_RSK:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_RSK[i]);
-                break;
-            case CHAIN_KIND_EXPANSE:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_EXPANSE[i]);
-                break;
-            case CHAIN_KIND_UBIQ:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_UBIQ[i]);
-                break;
-            case CHAIN_KIND_WANCHAIN:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_WANCHAIN[i]);
-                break;
-            case CHAIN_KIND_KUSD:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_KUSD[i]);
-                break;
-            case CHAIN_KIND_MUSICOIN:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_MUSICOIN[i]);
-                break;
-            case CHAIN_KIND_CALLISTO:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_CALLISTO[i]);
-                break;
-            case CHAIN_KIND_ETHERSOCIAL:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_ETHERSOCIAL[i]);
-                break;
-            case CHAIN_KIND_ELLAISM:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_ELLAISM[i]);
-                break;
-            case CHAIN_KIND_ETHER1:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_ETHER1[i]);
-                break;
-            case CHAIN_KIND_ETHERGEM:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_ETHERGEM[i]);
-                break;
-            case CHAIN_KIND_ATHEIOS:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_ATHEIOS[i]);
-                break;
-            case CHAIN_KIND_GOCHAIN:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_GOCHAIN[i]);
-                break;
-            case CHAIN_KIND_MIX:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_MIX[i]);
-                break;
-            case CHAIN_KIND_REOSC:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_REOSC[i]);
-                break;
-            case CHAIN_KIND_HPB:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_HPB[i]);
-                break;
-            case CHAIN_KIND_TOMOCHAIN:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_TOMOCHAIN[i]);
-                break;
-            case CHAIN_KIND_TOBALABA:
-                currentToken = (tokenDefinition_t *)PIC(&TOKENS_TOBALABA[i]);
-                break;
-        }
-        if (os_memcmp(currentToken->address, tmpContent.txContent.destination, 20) == 0) {
-            return currentToken;
-        }
-    }
-#endif
-
-    if ((currentTokenSet || tokenProvisioned) && (os_memcmp(tmpCtx.transactionContext.currentToken.address, tmpContent.txContent.destination, 20) == 0)) {
-      currentTokenSet = false;
-      return &tmpCtx.transactionContext.currentToken;
-    }
-
-    return NULL;
-}
 
 customStatus_e customProcessor(txContext_t *context) {
     if ((context->currentField == TX_RLP_DATA) &&
@@ -1953,31 +1765,9 @@ customStatus_e customProcessor(txContext_t *context) {
                 PRINTF("Missing function selector\n");
                 return CUSTOM_FAULT;
             }
-            // Initial check to see if the token content can be processed
-            tokenProvisioned =
-                (context->currentFieldLength == sizeof(dataContext.tokenContext.data)) &&
-                (os_memcmp(context->workBuffer, TOKEN_TRANSFER_ID, 4) == 0) &&
-                (getKnownToken() != NULL);
+
         }
-        if (tokenProvisioned) {
-            if (context->currentFieldPos < context->currentFieldLength) {
-                uint32_t copySize = (context->commandLength <
-                                        ((context->currentFieldLength -
-                                                   context->currentFieldPos))
-                                        ? context->commandLength
-                                            : context->currentFieldLength -
-                                                   context->currentFieldPos);
-                copyTxData(context,
-                    dataContext.tokenContext.data + context->currentFieldPos,
-                    copySize);
-            }
-            if (context->currentFieldPos == context->currentFieldLength) {
-                context->currentField++;
-                context->processingField = false;
-            }
-            return CUSTOM_HANDLED;
-        }
-        else {
+       
             uint32_t blockSize;
             uint32_t copySize;
             uint32_t fieldPos = context->currentFieldPos;
@@ -2062,7 +1852,6 @@ customStatus_e customProcessor(txContext_t *context) {
             }
 
             return CUSTOM_SUSPENDED;
-        }
     }
     return CUSTOM_NOT_HANDLED;
 }
@@ -2162,20 +1951,7 @@ void finalizeParsing(bool direct) {
   }
   // Store the hash
   cx_hash((cx_hash_t *)&sha3, CX_LAST, tmpCtx.transactionContext.hash, 0, tmpCtx.transactionContext.hash);
-    // If there is a token to process, check if it is well known
-    if (tokenProvisioned) {
-        tokenDefinition_t *currentToken = getKnownToken();
-        if (currentToken != NULL) {
-            dataPresent = false;
-            decimals = currentToken->decimals;
-            ticker = currentToken->ticker;
-            tmpContent.txContent.destinationLength = 20;
-            os_memmove(tmpContent.txContent.destination, dataContext.tokenContext.data + 4 + 12, 20);
-            os_memmove(tmpContent.txContent.value.value, dataContext.tokenContext.data + 4 + 32, 32);
-            tmpContent.txContent.value.length = 32;
-        }
-    }
-    else {
+
       if (dataPresent && !N_storage.dataAllowed) {
           PRINTF("Data field forbidden\n");
           if (direct) {
@@ -2187,7 +1963,6 @@ void finalizeParsing(bool direct) {
             return;
           }
       }
-    }
   // Add address
   if (tmpContent.txContent.destinationLength != 0) {
     getEthAddressStringFromBinary(tmpContent.txContent.destination, address, &sha3);
@@ -2269,54 +2044,6 @@ void finalizeParsing(bool direct) {
 #endif // NO_CONSENT
 }
 
-void handleProvideErc20TokenInformation(uint8_t p1, uint8_t p2, uint8_t *workBuffer, uint16_t dataLength, volatile unsigned int *flags, volatile unsigned int *tx) {
-  UNUSED(p1);
-  UNUSED(p2);
-  UNUSED(flags);
-  uint32_t offset = 0;
-  uint8_t tickerLength;
-  uint32_t chainId;
-  uint8_t hash[32];
-  cx_ecfp_public_key_t tokenKey;
-  if (dataLength < 1) {
-    THROW(0x6A80);
-  }
-  tickerLength = workBuffer[offset++];
-  dataLength--;
-  if ((tickerLength + 1) >= sizeof(tmpCtx.transactionContext.currentToken.ticker)) {
-    THROW(0x6A80);
-  }
-  if (dataLength < tickerLength + 20 + 4 + 4) {
-    THROW(0x6A80);
-  }
-  cx_hash_sha256(workBuffer + offset, tickerLength + 20 + 4 + 4, hash);
-  os_memmove(tmpCtx.transactionContext.currentToken.ticker, workBuffer + offset, tickerLength);
-  tmpCtx.transactionContext.currentToken.ticker[tickerLength] = ' ';
-  tmpCtx.transactionContext.currentToken.ticker[tickerLength + 1] = '\0';  
-  offset += tickerLength;
-  dataLength -= tickerLength;
-  os_memmove(tmpCtx.transactionContext.currentToken.address, workBuffer + offset, 20);
-  offset += 20;
-  dataLength -= 20;
-  tmpCtx.transactionContext.currentToken.decimals = U4BE(workBuffer, offset);
-  offset += 4;
-  dataLength -= 4;
-  chainId = U4BE(workBuffer, offset);
-  if ((chainConfig->chainId != 0) && (chainConfig->chainId != chainId)) {
-    PRINTF("ChainId token mismatch\n");
-    THROW(0x6A80);
-  }
-  offset += 4;
-  dataLength -= 4;
-  cx_ecfp_init_public_key(CX_CURVE_256K1, TOKEN_SIGNATURE_PUBLIC_KEY, sizeof(TOKEN_SIGNATURE_PUBLIC_KEY), &tokenKey);
-  if (!cx_ecdsa_verify(&tokenKey, CX_LAST, CX_SHA256, hash, 32, workBuffer + offset, dataLength)) {
-    PRINTF("Invalid token signature\n");
-    THROW(0x6A80);
-  }
-  currentTokenSet = true;
-  THROW(0x9000);
-}
-
 void handleSign(uint8_t p1, uint8_t p2, uint8_t *workBuffer, uint16_t dataLength, volatile unsigned int *flags, volatile unsigned int *tx) {
   UNUSED(tx);
   parserStatus_e txResult;
@@ -2336,7 +2063,7 @@ void handleSign(uint8_t p1, uint8_t p2, uint8_t *workBuffer, uint16_t dataLength
       dataLength -= 4;
     }
     dataPresent = false;
-    tokenProvisioned = false;
+
     initTx(&txContext, &sha3, &tmpContent.txContent, customProcessor, NULL);
   }
   else
@@ -2483,13 +2210,7 @@ void handleApdu(volatile unsigned int *flags, volatile unsigned int *tx) {
 
       switch (G_io_apdu_buffer[OFFSET_INS]) {
         case INS_GET_PUBLIC_KEY:
-          currentTokenSet = false;
           handleGetPublicKey(G_io_apdu_buffer[OFFSET_P1], G_io_apdu_buffer[OFFSET_P2], G_io_apdu_buffer + OFFSET_CDATA, G_io_apdu_buffer[OFFSET_LC], flags, tx);
-          break;
-
-        case INS_PROVIDE_ERC20_TOKEN_INFORMATION:
-          currentTokenSet = false;
-          handleProvideErc20TokenInformation(G_io_apdu_buffer[OFFSET_P1], G_io_apdu_buffer[OFFSET_P2], G_io_apdu_buffer + OFFSET_CDATA, G_io_apdu_buffer[OFFSET_LC], flags, tx);
           break;
 
         case INS_SIGN:
@@ -2501,7 +2222,6 @@ void handleApdu(volatile unsigned int *flags, volatile unsigned int *tx) {
           break;
 
         case INS_SIGN_PERSONAL_MESSAGE:
-          currentTokenSet = false;
           handleSignPersonalMessage(G_io_apdu_buffer[OFFSET_P1], G_io_apdu_buffer[OFFSET_P2], G_io_apdu_buffer + OFFSET_CDATA, G_io_apdu_buffer[OFFSET_LC], flags, tx);
           break;
 
