@@ -56,7 +56,7 @@ args = parser.parse_args()
 args.message = args.message.encode()
 
 if args.path == None:
-    args.path = "44'/337'"
+    args.path = "44'/337'/0'/0"
 
 encodedTx = struct.pack(">I", len(args.message))
 encodedTx += args.message
