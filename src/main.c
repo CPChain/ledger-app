@@ -167,7 +167,7 @@ const internalStorage_t N_storage_real;
 static const char const CONTRACT_ADDRESS[] = "New contract";
 
 static const char const SIGN_MAGIC[] = "\x19"
-                                       "Ethereum Signed Message:\n";
+                                       "Cpchain Signed Message:\n";
 
 chain_config_t *chainConfig;
 
