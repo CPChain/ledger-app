@@ -37,6 +37,9 @@ pip install Pillow
 
 # sign message
 ./examples/signMessage.py --message "Test message"
+
+# get publickey
+./examples/getPublicKey.py
 ```
 
 ## Documentation
